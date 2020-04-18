@@ -9,11 +9,16 @@ Foreach($dir in dir $base ){
             $src_release = $base + $dir.name + "\"  
             $dest = $base + $Matches[1] + "\"   
             $build_dest = $builds + $Matches[1] + "-" + $(Get-Date -format 'MM-dd-yyyy-HH-mm-ss') 
+
             Copy-Item -Path ($src_release) -Destination ($build_dest) -Recurse
-            Copy-Item -Path ($dest + "*config" ) -Destination ($temp) 
-            #$dest
+
+            Copy-Item -Path ($dest + "*config*" ) -Destination ($temp) 
+            Copy-Item -Path ($dest + "*appsettings*" ) -Destination ($temp) 
+            
             Remove-item ( $dest + "*" ) -recurse -force
             Copy-Item   -Path ($src_release + "*") -Destination ( $dest ) -recurse  -force
             Copy-Item   -Path ($temp + "*") -Destination ( $dest ) -recurse  -force 
+
+		Remove-item ( $temp + "*" ) -recurse -force 
       }
 } 

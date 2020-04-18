@@ -29,6 +29,10 @@ namespace SOM_API
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
             //SOM.Bootstrapper.Run();
+            services.AddCors(c =>
+            {
+                c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin());
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -42,7 +46,7 @@ namespace SOM_API
             {
                 app.UseHsts();
             }
-
+            app.UseCors(options => options.AllowAnyOrigin());
             //app.UseHttpsRedirection();
             app.UseMvc();
         }
