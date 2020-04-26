@@ -11,37 +11,74 @@ using SOM.Models;
 using SOM.Procedures;
 using SOMAPI.Models;
 using SOM.Extentions;
+using SOMAPI.Services;
+using SOMData;
+using SOMData.Models;
+using Nelibur.ObjectMapper;
+
 namespace SOM_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class CompilationController : ControllerBase
     {
+        private readonly IInfoSchemaService _InfoSchemaService;
+        private readonly IRepository<CompilationWorkspace> _CompWorkRepo;
+        public CompilationController(
+            IInfoSchemaService InfoSchemaService
+            , IRepository<CompilationWorkspace> CompWorkRepo)
+        {
+
+            _InfoSchemaService = InfoSchemaService;
+            _CompWorkRepo = CompWorkRepo;
+        }
+        [HttpGet("Get/{ID}")]
+        public IActionResult GetCompilation(int ID)
+        { 
+            CompilationWorkspace entity = _CompWorkRepo.GetById(ID);
+            TinyMapper.Bind<CompilationWorkspace, CompilerViewModel>();
+            return new JsonResult(TinyMapper.Map<CompilerViewModel>(entity));
+        }
+        [HttpGet("GetAll")]
+        public IActionResult GetAll()
+        {
+            List<CompilationWorkspace> entities = _CompWorkRepo.Table.ToList();
+            TinyMapper.Bind< List <CompilationWorkspace>, List<CompilerViewModel>>();
+            return new JsonResult(TinyMapper.Map<List<CompilerViewModel>>(entities));
+        }
         [HttpPost]
-        public IActionResult Compile([FromBody]CompilerViewModel model)
+        public IActionResult InsertCompilation([FromBody]CompilerViewModel model)
         {
-            //AppModel appModel = GetAppModel(model.ModelName);
-            //model.CompileTo = JsonConvert.SerializeObject(appModel, Formatting.Indented);
-            model.CompileTo = CompileInjectables(model.CompileFrom);
-     
-            return new JsonResult(model);
+            TinyMapper.Bind<CompilerViewModel, CompilationWorkspace>(); 
+            var cw = TinyMapper.Map<CompilationWorkspace>(model);
+            _CompWorkRepo.Insert(cw);
+
+            TinyMapper.Bind<CompilationWorkspace, CompilerViewModel>(); 
+            return new JsonResult(TinyMapper.Map<CompilerViewModel>(cw));
         }
-        [HttpGet("{model}")]
-        public string GetModel(string ModelName)
+        [HttpPut]
+        public IActionResult UpdateCompilation([FromBody]CompilerViewModel model)
         {
-            AppModel appModel = GetAppModel(ModelName);
-            return JsonConvert.SerializeObject(appModel, Formatting.Indented);
+            TinyMapper.Bind<CompilerViewModel, CompilationWorkspace>(); 
+            var cw = TinyMapper.Map<CompilationWorkspace>(model);
+            _CompWorkRepo.Update(cw);
+            return new JsonResult(TinyMapper.Map<CompilerViewModel>(cw));
         }
 
-        private AppModel GetAppModel(string name)
+        [HttpGet("Tables/{Filter}")]
+        public IActionResult GetTables(string Filter)
         {
-            return new AppModel()
-            {
-                ModelName = name,
-                AppModelItems = new TableEnumerator(name).Items
-            };
+            string _filter = "";
+            if (Filter != "*")
+                _filter = Filter;
+            return new JsonResult(_InfoSchemaService.GetTables(_filter));
         }
-
+        [HttpGet("Model/{ModelName}")]
+        public IActionResult GetModel(string ModelName)
+        {
+             return new JsonResult(_InfoSchemaService.GetAppModel(ModelName));
+        }
+         
         private string CompileInjectables(string content)
         {
             StringBuilder result = new StringBuilder();
