@@ -8,20 +8,26 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using SOM.Procedures;
-using SOM.Models;
-using SOM.Procedures;
+using SOM.Models; 
 using SOMAPI.Models;
 using SOM.Extentions;
+using SOMAPI.Services;
+
 namespace SOM_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController] 
     public class AppModelController : ControllerBase
-    { 
+    {
+        private readonly IInfoSchemaService _InfoSchemaService;
+        public AppModelController(IInfoSchemaService InfoSchemaService)
+        {
+            _InfoSchemaService = InfoSchemaService;
+        }
         [HttpGet("{Model}")]
-        public IActionResult GetTable(string model)
+        public IActionResult GetModels(string model)
         { 
-            return new JsonResult(GetAppModel(model));
+            return new JsonResult(_InfoSchemaService.GetAppModel(model));
         } 
 
         [HttpGet("Inject/{content}")]
@@ -44,28 +50,21 @@ namespace SOM_API.Controllers
 
             return Injectables;
         }
-
-        private AppModel GetAppModel(string name) { 
-            return new AppModel()
-            {
-                Name = name,
-                AppModelItems = new TableEnumerator(name).Items 
-            }; 
-        }
+         
  
-        [HttpPost]
-        public IActionResult InjectModel([FromBody]CompilerViewModel model)
-        {
-            string compileFrom = model.CompileFrom;
-            StringBuilder sb = new StringBuilder();
-            foreach (var item in GetAppModel(compileFrom).AppModelItems)
-            {
-                sb.Append($"{item.Name}\n");
-            }
-            AppModel appModel = GetAppModel(compileFrom);
-            model.CompileTo = JsonConvert.SerializeObject(appModel, Formatting.Indented) ;
-            return new JsonResult(appModel);
-        }
+       // [HttpPost]
+       // public IActionResult InjectModel([FromBody]CompilerViewModel model)
+       // {
+       //     string compileFrom = model.CompileFrom;
+       //     StringBuilder sb = new StringBuilder();
+       //     foreach (var item in GetAppModel(compileFrom).AppModelItems)
+       //     {
+       //         sb.Append($"{item.Name}\n");
+       //     }
+       //     AppModel appModel = GetAppModel(compileFrom);
+       //     model.CompileTo = JsonConvert.SerializeObject(appModel, Formatting.Indented) ;
+       //     return new JsonResult(appModel);
+       // }
        
     }
 }
