@@ -37,7 +37,7 @@ namespace SOM_API.Controllers
         {
             return new AppModel()
             {
-                Name = name,
+                ModelName = name,
                 AppModelItems = new TableEnumerator(name).Items
             };
         }
