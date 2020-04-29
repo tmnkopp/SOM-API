@@ -51,8 +51,7 @@ namespace SOM_API.Controllers
         {
             TinyMapper.Bind<CompilerViewModel, CompilationWorkspace>(); 
             var cw = TinyMapper.Map<CompilationWorkspace>(model);
-            _CompWorkRepo.Insert(cw);
-
+            _CompWorkRepo.Insert(cw); 
             TinyMapper.Bind<CompilationWorkspace, CompilerViewModel>(); 
             return new JsonResult(TinyMapper.Map<CompilerViewModel>(cw));
         }
@@ -62,6 +61,7 @@ namespace SOM_API.Controllers
             TinyMapper.Bind<CompilerViewModel, CompilationWorkspace>(); 
             var cw = TinyMapper.Map<CompilationWorkspace>(model);
             _CompWorkRepo.Update(cw);
+            TinyMapper.Bind<CompilationWorkspace, CompilerViewModel>();
             return new JsonResult(TinyMapper.Map<CompilerViewModel>(cw));
         }
 

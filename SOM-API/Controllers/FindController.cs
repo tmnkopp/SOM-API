@@ -37,7 +37,7 @@ namespace SOM_API.Controllers
         public RepoParser()
         {
             Path = @"C:\Users\Tim\source\repos\";
-            ExcludeList.AddRange(".spec,node_modules,.git,e2e,.vscode,dist".Split(new char[] { ',' })); 
+            PathExclusions.AddRange(".spec,node_modules,.git,e2e,.vscode,dist".Split(new char[] { ',' })); 
         }
         public override string ToString()
         {
