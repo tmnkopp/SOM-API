@@ -9,7 +9,6 @@
 
   <ItemGroup>
     <Compile Remove="Controllers\AppModelController.cs" />
-    <Compile Remove="Controllers\ValuesController.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -28,6 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Scraper\Scraper\Scraper.csproj" />
     <ProjectReference Include="..\..\SOMData\SOMData.csproj" />
   </ItemGroup>
 
