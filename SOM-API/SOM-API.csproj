@@ -27,7 +27,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Scraper\Scraper\Scraper.csproj" />
     <ProjectReference Include="..\..\SOMData\SOMData.csproj" />
   </ItemGroup>
 

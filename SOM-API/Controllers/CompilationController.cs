@@ -39,7 +39,7 @@ namespace SOM_API.Controllers
             TinyMapper.Bind<CompilationWorkspace, CompilerViewModel>();
             return new JsonResult(TinyMapper.Map<CompilerViewModel>(entity));
         }
-        [HttpGet("GetAll")]
+        [HttpGet("GetAll/")]
         public IActionResult GetAll()
         {
             List<CompilationWorkspace> entities = _CompWorkRepo.Table.ToList();

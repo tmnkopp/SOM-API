@@ -19,13 +19,13 @@ namespace SOM_API
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public IHostingEnvironment HostingEnvironment { get; private set; }
+        public IConfiguration Configuration { get; private set; } 
+        public Startup(IConfiguration configuration, IHostingEnvironment env)
         {
-            Configuration = configuration;
-        }
-
-        public IConfiguration Configuration { get; }
-
+            this.HostingEnvironment = env;
+            this.Configuration = configuration;
+        } 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {

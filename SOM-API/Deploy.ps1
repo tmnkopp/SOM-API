@@ -1,36 +1,29 @@
+## UPDATE AspNetCoreModuleV2
 
 $base = 'C:\inetpub\wwwroot\'
 $builds = $base + 'builds\' 
+$releasefrom = "C:\inetpub\wwwroot\somapi_Release\"
+$releaseto = $base + "somapi\"
+$temp = $base + "temp\" 
+$build_dest = $builds + 'somapi' + "-" + $(Get-Date -format 'MM-dd-yyyy-HH-mm-ss') 
 
-New-Item -Path $base -Name "temp" -ItemType "directory" -Force
-$temp=$base+"temp\"
+$webconf = $releasefrom + "web.config" 
+$content = Get-Content -Path $webconf 
+$content = $content.Replace("AspNetCoreModule""","AspNetCoreModuleV2""")
+Set-Content -Path $webconf  -Value $content 
 
-Foreach($dir in dir $base ){
-      
-      if( $dir.name -match '(.*)_Release'  ){
-            $src_release = $base + $dir.name + "\"  
-            $dest = $base + $Matches[1] + "\"   
-            $build_dest = $builds + $Matches[1] + "-" + $(Get-Date -format 'MM-dd-yyyy-HH-mm-ss') 
-            
-          
+Copy-Item -Path ($releasefrom) -Destination ($build_dest) -Recurse
+Remove-item ( $temp + "*" ) -recurse -force
+Copy-Item -Path ($releaseto + "*config*" ) -Destination ($temp) 
+Copy-Item -Path ($releaseto + "*appsettings*" ) -Destination ($temp) 
 
-            $isEmpty = Test-Path -Path $src_release*
-            if ($isEmpty){
-                Write-Host -f red “Release Path not Empty” + $src_release
-            } else {
-                Write-Host -f green “Release Path Empty” + $src_release
-            }
-            
-            if ($isEmpty){
-                Copy-Item -Path ($src_release) -Destination ($build_dest) -Recurse
-                Copy-Item -Path ($dest + "*config*" ) -Destination ($temp) 
-                Copy-Item -Path ($dest + "*appsettings*" ) -Destination ($temp) 
+$HasFiles = Test-Path -Path $releasefrom* 
+if( $HasFiles )
+{
+    Remove-item ( $releaseto + "*" ) -recurse -force
+    Copy-Item   -Path ($releasefrom + "*") -Destination (  $releaseto ) -recurse  -force
+    Copy-Item   -Path ($temp + "*") -Destination (  $releaseto ) -recurse  -force  
+}
 
-                Remove-item ( $dest + "*" ) -recurse -force
-                Copy-Item   -Path ($src_release + "*") -Destination ( $dest ) -recurse  -force
-                Copy-Item   -Path ($temp + "*") -Destination ( $dest ) -recurse  -force
-                Remove-item ( $temp + "*" ) -recurse -force
-            } 
 
-      }
-} 
+
