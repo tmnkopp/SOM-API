@@ -7,7 +7,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using SOMAPI.Models;
 using SOMData.Models;
-using SOMData.Providers; 
+using SOMData.Providers;
+using System.IO;
+using System.Security.Cryptography;
+
 namespace SOMAPI.Controllers
 {
     [Route("api/[controller]")]
@@ -40,6 +43,7 @@ namespace SOMAPI.Controllers
         {
             model.CodeTemplates.Clear();
             model.CodeTemplates = CompileTemplates(model);
+            WriteFiles(model.SaveDestination, model.CodeTemplates); 
             return new JsonResult(model);
         }
         public List<CodeTemplate> CompileTemplates(ScaffoldViewModel model) {
@@ -61,6 +65,15 @@ namespace SOMAPI.Controllers
             model.Namespace = Namespace; 
             model.CodeTemplates=CompileTemplates(model);
             return new JsonResult(model); 
+        }
+
+        public void WriteFiles(string Destination, List<CodeTemplate> templates)
+        {
+            Destination = string.IsNullOrWhiteSpace(Destination) ? dest : Destination ;
+            foreach (CodeTemplate template in templates)
+            {
+                System.IO.File.WriteAllText($"{Destination}\\{template.Name}", template.Content);
+            }
         }
     }
 }

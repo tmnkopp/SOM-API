@@ -15,6 +15,8 @@ using SOMAPI.Services;
 using SOMData;
 using SOMData.Models;
 using Nelibur.ObjectMapper;
+using Microsoft.Extensions.Configuration;
+using SOMData.Providers;
 
 namespace SOM_API.Controllers
 {
@@ -22,15 +24,23 @@ namespace SOM_API.Controllers
     [ApiController]
     public class CompilationController : ControllerBase
     {
+
+        private string path;
+        private string dest;
+        private readonly IConfiguration _config;
         private readonly IInfoSchemaService _InfoSchemaService;
         private readonly IRepository<CompilationWorkspace> _CompWorkRepo;
         public CompilationController(
             IInfoSchemaService InfoSchemaService
-            , IRepository<CompilationWorkspace> CompWorkRepo)
+            , IRepository<CompilationWorkspace> CompWorkRepo
+            , IConfiguration config)
         {
-
+            _config = config;
             _InfoSchemaService = InfoSchemaService;
             _CompWorkRepo = CompWorkRepo;
+            path = _config.GetValue<string>("AppSettings:SourceDir");
+            dest = _config.GetValue<string>("AppSettings:DestDir");
+
         }
         [HttpGet("Get/{ID}")]
         public IActionResult GetCompilation(int ID)
@@ -78,7 +88,20 @@ namespace SOM_API.Controllers
         {
              return new JsonResult(_InfoSchemaService.GetAppModel(ModelName));
         }
-         
+        [HttpGet("GetSnippets/{Filename}")]
+        public List<string> GetSnippets(string Filename)
+        {
+            List<string> snippets = new List<string>();
+            foreach (CodeTemplate template in DocProvider.GetTemplates(path))
+            {
+                if (template.Name.Contains(Filename))
+                {  
+                    string[] lines = template.Content.Split('~');
+                    snippets = new List<string>(lines);
+                } 
+            } 
+            return snippets;
+        }
         private string CompileInjectables(string content)
         {
             StringBuilder result = new StringBuilder();
