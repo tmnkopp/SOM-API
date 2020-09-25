@@ -10,6 +10,9 @@ using SOMData.Models;
 using SOMData.Providers;
 using System.IO;
 using System.Security.Cryptography;
+using System.Text.RegularExpressions;
+using SOM.Procedures;
+using Newtonsoft.Json;
 
 namespace SOMAPI.Controllers
 {
@@ -42,37 +45,64 @@ namespace SOMAPI.Controllers
         public IActionResult Load([FromBody] ScaffoldViewModel model)
         {
             model.CodeTemplates.Clear();
+            model.CodeTemplates = CompileTemplates(model); 
+            return new JsonResult(model);
+        }
+        [HttpPost]
+        [Route("Save")]
+        public IActionResult Save([FromBody] ScaffoldViewModel model)
+        {
+            model.CodeTemplates.Clear();
             model.CodeTemplates = CompileTemplates(model);
-            WriteFiles(model.SaveDestination, model.CodeTemplates); 
+            WriteFiles(model.ModelName, model.SaveDestination, model.CodeTemplates);
             return new JsonResult(model);
         }
         public List<CodeTemplate> CompileTemplates(ScaffoldViewModel model) {
-            List<CodeTemplate> templates = new List<CodeTemplate>();
+
+            Dictionary<string, string> KeyVals = new Dictionary<string, string>();
+            KeyVals.Add("<#= ModelTypeName #>", model.ModelName);
+            KeyVals.Add("<#= ModelVariable #>", model.ModelName.ToLower());
+            KeyVals.Add("<#= Namespace #>", model.Namespace);
+            string keyval = JsonConvert.SerializeObject(KeyVals);
+             
+            List<ICompiler> compilers = new List<ICompiler>() {
+                new ModelTemplateCompile(),
+                new ModuloCompile(),
+                new KeyValCompile(keyval)
+            };
+
+            List<CodeTemplate> templates = new List<CodeTemplate>(); 
             foreach (CodeTemplate template in DocProvider.GetTemplates(path))
             {
-                template.Content = template.Content.Replace("<#= ModelTypeName #>", model.ModelName);
-                template.Content = template.Content.Replace("<#= ModelVariable #>", model.ModelName.ToLower());
-                template.Content = template.Content.Replace("<#= Namespace #>", model.Namespace);
+                foreach (ICompiler compiler in compilers)
+                    template.Content = compiler.Compile(template.Content); 
                 templates.Add(template);
             }
             return templates;
-        }
+        } 
         [HttpGet("GetCodeTemplates/{ModelName}/{Namespace}")]
         public IActionResult GetCodeTemplates(string ModelName, string Namespace)
         {
             ScaffoldViewModel model = new ScaffoldViewModel();
+            model.SaveDestination = dest;
             model.ModelName = ModelName;
             model.Namespace = Namespace; 
             model.CodeTemplates=CompileTemplates(model);
             return new JsonResult(model); 
         }
 
-        public void WriteFiles(string Destination, List<CodeTemplate> templates)
+        private void WriteFiles(string ModelName, string Destination, List<CodeTemplate> templates)
         {
             Destination = string.IsNullOrWhiteSpace(Destination) ? dest : Destination ;
             foreach (CodeTemplate template in templates)
             {
-                System.IO.File.WriteAllText($"{Destination}\\{template.Name}", template.Content);
+                string name = template.Name;
+                Match match = Regex.Match(name, @".*_(.*)");
+                if (match.Success)
+                {
+                    name = match.Groups[1].Value;
+                }
+                System.IO.File.WriteAllText($"{Destination}\\{ModelName}{name}", template.Content);
             }
         }
     }

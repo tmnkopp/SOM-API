@@ -101,27 +101,6 @@ namespace SOM_API.Controllers
                 } 
             } 
             return snippets;
-        }
-        private string CompileInjectables(string content)
-        {
-            StringBuilder result = new StringBuilder();
-            string[] lines = content.Split('\n');
-            foreach (var line in lines)
-            {
-                string pattern = @"\[.*\]";
-                Match match = Regex.Match(line, pattern);
-                if (match.Success)
-                {
-                    string procedureCall = match.Value.RemoveAsChars("[]"); 
-                    ICompiler proc = (ICompiler)SOM.Procedures.Invoker.InvokeProcedure(procedureCall);
-                    result.AppendFormat("{0}", line.Replace(match.Value, proc.Compile(content)));
-                }
-                else
-                {
-                    result.AppendFormat("{0}\n", line);
-                }
-            }
-            return result.ToString();
-        }
+        } 
     }
 }
