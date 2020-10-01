@@ -59,23 +59,23 @@ namespace SOMAPI.Controllers
         }
         public List<CodeTemplate> CompileTemplates(ScaffoldViewModel model) {
 
-            Dictionary<string, string> KeyVals = new Dictionary<string, string>();
+            Dictionary<string, string> KeyVals = new Dictionary<string, string>(); 
             KeyVals.Add("<#= ModelTypeName #>", model.ModelName);
             KeyVals.Add("<#= ModelVariable #>", model.ModelName.ToLower());
             KeyVals.Add("<#= Namespace #>", model.Namespace);
-            string keyval = JsonConvert.SerializeObject(KeyVals);
+            string json = JsonConvert.SerializeObject(KeyVals);
              
-            List<ICompiler> compilers = new List<ICompiler>() {
-                new ModelTemplateCompile(),
-                new ModuloCompile(),
-                new KeyValCompile(keyval)
+            List<IInterpreter> compilers = new List<IInterpreter>() {
+                new ModelTemplateInterpreter(),
+                new ModuloInterpreter(),
+                new KeyValInterpreter(json)
             };
 
             List<CodeTemplate> templates = new List<CodeTemplate>(); 
             foreach (CodeTemplate template in DocProvider.GetTemplates(path))
             {
-                foreach (ICompiler compiler in compilers)
-                    template.Content = compiler.Compile(template.Content); 
+                foreach (IInterpreter compiler in compilers)
+                    template.Content = compiler.Interpret(template.Content); 
                 templates.Add(template);
             }
             return templates;
@@ -98,10 +98,9 @@ namespace SOMAPI.Controllers
             {
                 string name = template.Name;
                 Match match = Regex.Match(name, @".*_(.*)");
-                if (match.Success)
-                {
+                if (match.Success) 
                     name = match.Groups[1].Value;
-                }
+ 
                 System.IO.File.WriteAllText($"{Destination}\\{ModelName}{name}", template.Content);
             }
         }

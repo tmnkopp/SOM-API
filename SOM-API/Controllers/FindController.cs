@@ -15,20 +15,8 @@ namespace SOM_API.Controllers
     {
         [HttpGet("{find}")]
         public string Find(string find, string context) {
-            int lines = 3;
-            if (context != "")
-                lines = Convert.ToInt32(context);
-
-            
-            ParseBuilder<RepoParser> PB = new ParseBuilder<RepoParser>();
-            PB.Init() 
-                .Compilers(new List<ICompiler>() {
-                    new LineExtractor(find, lines),
-                    new RegexCompile(@"~~~", "")
-                })
-                .Parse();
-
-            return  (PB.Parser.ToJson());  
+            int lines = 3; 
+            return  "";  
         }
     }
 
