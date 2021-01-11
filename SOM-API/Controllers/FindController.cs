@@ -18,18 +18,5 @@ namespace SOM_API.Controllers
             int lines = 3; 
             return  "";  
         }
-    }
-
-    public class RepoParser : BaseParser
-    {
-        public RepoParser()
-        {
-            Path = @"C:\Users\Tim\source\repos\";
-            PathExclusions.AddRange(".spec,node_modules,.git,e2e,.vscode,dist".Split(new char[] { ',' })); 
-        }
-        public override string ToString()
-        {
-            return base.ToString();
-        }
-    }
+    } 
 }

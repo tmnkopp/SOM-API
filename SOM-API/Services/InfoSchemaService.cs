@@ -28,8 +28,10 @@ namespace SOMAPI.Services
             List<AppModelItem> _AppModelItems = new List<AppModelItem>();
             if (ModelName.Contains(".")) {  
                 _AppModelItems = new TypeEnumerator(Type.GetType(ModelName)).Items;
-                ModelName = ModelName.Split(".")[ModelName.Split(".").Length - 1]; 
+                ModelName = ModelName.Split(".")[ModelName.Split(".").Length - 1];
             }
+            else if(ModelName.StartsWith("vw")) 
+                _AppModelItems = new ViewEnumerator(ModelName).Items; 
             else
                 _AppModelItems = new TableEnumerator(ModelName).Items;
             return new AppModel()

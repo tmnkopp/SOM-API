@@ -36,10 +36,12 @@ namespace SOM_API
                options.UseSqlServer(Configuration.GetConnectionString("som"))
             );
             //SOM.Bootstrapper.Run();
-            services.AddCors(c =>
+            services.AddCors(o => o.AddPolicy("AllowAny", builder =>
             {
-                c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin());
-            });
+                builder.AllowAnyOrigin()
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
+            }));
             services.AddTransient<IInfoSchemaService, InfoSchemaService>(); 
             services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
         
@@ -57,7 +59,7 @@ namespace SOM_API
             {
                 app.UseHsts();
             }
-            app.UseCors(options => options.AllowAnyOrigin());
+            app.UseCors("AllowAny");
             //app.UseHttpsRedirection();
             app.UseMvc();
         }
