@@ -26,8 +26,9 @@ namespace SOMAPI.Controllers
         public ScaffoldController(IConfiguration config)
         {
             _config = config;
-            path = _config.GetValue<string>("AppSettings:SourceDir");
-            dest = _config.GetValue<string>("AppSettings:DestDir");
+            var appSettings = _config.GetSection(nameof(AppSettings)).Get<AppSettings>();
+            path = appSettings.SourceDir;
+            dest = appSettings.DestDir;
         }
      
         [HttpGet("GetScaffold/{ID}")]
@@ -66,9 +67,9 @@ namespace SOMAPI.Controllers
             string json = JsonConvert.SerializeObject(KeyVals);
              
             List<IInterpreter> compilers = new List<IInterpreter>() {
-                new ModelTemplateInterpreter(),
+                new ModelTemplateInterpreter(_config),
                 new ModuloInterpreter(),
-                new KeyValInterpreter(json)
+                new KeyValReplacer(json)
             };
 
             List<CodeTemplate> templates = new List<CodeTemplate>(); 

@@ -1,12 +1,16 @@
-﻿using System;
+﻿using System;   
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Linq;  
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
+using Newtonsoft.Json; 
+using SOMAPI.Models; 
+using SOMAPI.Services;
+using SOMData;
+using SOMData.Models;
+using Nelibur.ObjectMapper;
 using Microsoft.Extensions.Configuration;
-using SOM.IO;
-using SOMAPI;
+using SOMData.Providers;
+using SOM.Data;
 
 namespace SOM_API.Controllers
 {
@@ -14,47 +18,25 @@ namespace SOM_API.Controllers
     [ApiController]
     public class ValuesController : ControllerBase
     {
-        private AppSettings AppSettings { get; set; }
+        private readonly ISchemaProvider _InfoSchemaService;
         private string _conn = "";
         public ValuesController(
-            IOptions<AppSettings> settings,
+            ISchemaProvider InfoSchemaService,
             IConfiguration _configuration)
         {
-            _conn = _configuration.GetConnectionString("default");
-            AppSettings = settings.Value;
+            _InfoSchemaService = InfoSchemaService;
+            _conn = _configuration.GetConnectionString("default"); 
         }
         // GET api/values
         [HttpGet]
-        public ActionResult<IEnumerable<string>> Get()
+        public IActionResult Get()
         {
-            FileReader r = new FileReader();
-            string result = r.Read();
-            return new string[] { "BasePath", _conn };
-        }
-
-        // GET api/values/5
-        [HttpGet("{id}")]
-        public ActionResult<string> Get(int id)
-        {
-            return "value";
-        }
-
-        // POST api/values
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
-
-        // PUT api/values/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/values/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
+            var schema = _InfoSchemaService.GetTables("");
+            var json = new Dictionary<string, string>();
+            foreach (var item in schema)
+                json.Add(item, item);
+            
+            return new JsonResult(json);
+        }  
     }
 }

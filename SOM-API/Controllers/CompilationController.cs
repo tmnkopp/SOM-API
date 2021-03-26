@@ -1,50 +1,45 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+using System.Linq;  
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using SOM.Models;
-using SOM.Procedures;
-using SOMAPI.Models;
-using SOM.Extentions;
+using Newtonsoft.Json; 
+using SOMAPI.Models; 
 using SOMAPI.Services;
 using SOMData;
 using SOMData.Models;
 using Nelibur.ObjectMapper;
 using Microsoft.Extensions.Configuration;
 using SOMData.Providers;
+using SOM.Data;
+using SOMAPI;
 
 namespace SOM_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class CompilationController : ControllerBase
-    {
-
+    { 
         private string path;
         private string dest;
         private readonly IConfiguration _config;
-        private readonly IInfoSchemaService _InfoSchemaService;
+        private readonly ISchemaProvider _InfoSchemaService;
         private readonly IRepository<CompilationWorkspace> _CompWorkRepo;
         public CompilationController(
-            IInfoSchemaService InfoSchemaService
+              ISchemaProvider InfoSchemaService
             , IRepository<CompilationWorkspace> CompWorkRepo
             , IConfiguration config)
         {
             _config = config;
             _InfoSchemaService = InfoSchemaService;
             _CompWorkRepo = CompWorkRepo;
-            path = _config.GetValue<string>("AppSettings:SourceDir");
-            dest = _config.GetValue<string>("AppSettings:DestDir");
-
+            var appSettings = config.GetSection(nameof(AppSettings)).Get<AppSettings>();
+            path = appSettings.SourceDir;
+            dest = appSettings.DestDir;
         }
         [HttpGet("Get/{ID}")]
         public IActionResult GetCompilation(int ID)
-        { 
+        {
+            
             CompilationWorkspace entity = _CompWorkRepo.GetById(ID);
             TinyMapper.Bind<CompilationWorkspace, CompilerViewModel>();
             return new JsonResult(TinyMapper.Map<CompilerViewModel>(entity));
@@ -53,7 +48,7 @@ namespace SOM_API.Controllers
         public IActionResult GetAll()
         {
             List<CompilationWorkspace> entities = _CompWorkRepo.Table.ToList();
-            TinyMapper.Bind< List <CompilationWorkspace>, List<CompilerViewModel>>();
+            TinyMapper.Bind<List<CompilationWorkspace>, List<CompilerViewModel>>();
             return new JsonResult(TinyMapper.Map<List<CompilerViewModel>>(entities));
         }
         [HttpPost]
@@ -86,7 +81,7 @@ namespace SOM_API.Controllers
         [HttpGet("Model/{ModelName}")]
         public IActionResult GetModel(string ModelName)
         {
-             return new JsonResult(_InfoSchemaService.GetAppModel(ModelName));
+             return new JsonResult(_InfoSchemaService.GetModel(ModelName));
         }
         [HttpGet("GetSnippets/{Filename}")]
         public List<string> GetSnippets(string Filename)

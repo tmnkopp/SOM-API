@@ -15,6 +15,8 @@ using SOMAPI.Services;
 using SOMData;
 using SOMData.Models;
 using Nelibur.ObjectMapper;
+using Newtonsoft.Json.Serialization;
+using SOM.Data;
 
 namespace SOM_API.Controllers
 {
@@ -22,16 +24,16 @@ namespace SOM_API.Controllers
     [ApiController]
     public class SchemaController : ControllerBase
     {
-        private readonly IInfoSchemaService _InfoSchemaService; 
+        private readonly ISchemaProvider _InfoSchemaService; 
         public SchemaController(
-            IInfoSchemaService InfoSchemaService )
+            ISchemaProvider InfoSchemaService )
         { 
             _InfoSchemaService = InfoSchemaService; 
         }
         [HttpGet("Table/{Name}")]
         public IActionResult GetTable(string Name)
         { 
-            return new JsonResult(_InfoSchemaService.GetAppModel(Name) );
+            return new JsonResult(_InfoSchemaService.GetModel(Name) );
         }
         [HttpGet("Tables/{Filter}")]
         public IActionResult GetTables(string Filter)
@@ -44,7 +46,7 @@ namespace SOM_API.Controllers
         [HttpGet("Model/{ModelName}")]
         public IActionResult GetModel(string ModelName)
         {
-            return new JsonResult(_InfoSchemaService.GetAppModel(ModelName));
-        }
-    }
+            return new JsonResult(_InfoSchemaService.GetModel(ModelName));
+        } 
+    } 
 }

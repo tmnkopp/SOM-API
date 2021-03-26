@@ -10,10 +10,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using SOMData;
 using SOMAPI;
 using SOMAPI.Services;
+using SOM.Data;
 
 namespace SOM_API
 {
@@ -29,9 +31,18 @@ namespace SOM_API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-            services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
+            services.AddMvc(option => option.EnableEndpointRouting = false)
+            .AddJsonOptions(jsonOptions => {
+                jsonOptions.JsonSerializerOptions.PropertyNamingPolicy = null;
+            })
+            .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+             
+            services.Configure<AppSettings>(Configuration.GetSection(nameof(AppSettings)));
+            services.AddSingleton(Configuration);
 
+            // ...
+            var appSettings = Configuration.GetSection(nameof(AppSettings)).Get<AppSettings>();
+             
             services.AddDbContext<SOMDbContext>(options =>
                options.UseSqlServer(Configuration.GetConnectionString("som"))
             );
@@ -42,12 +53,10 @@ namespace SOM_API
                        .AllowAnyMethod()
                        .AllowAnyHeader();
             }));
-            services.AddTransient<IInfoSchemaService, InfoSchemaService>(); 
+            services.AddScoped<ISchemaProvider, SchemaProvider>(); 
             services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
-        
          
-        }
-
+        } 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {

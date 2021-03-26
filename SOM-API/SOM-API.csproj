@@ -1,10 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <AssemblyName>SOMAPI</AssemblyName>
     <RootNamespace>SOMAPI</RootNamespace>
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
+    <UserSecretsId>0cb3521d-c1d2-475e-98c5-33dbd353b68e</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,7 +13,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Remove="app.config" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="wwwroot\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="App.config" />
   </ItemGroup>
 
   <ItemGroup>
@@ -21,20 +30,18 @@
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.1.2" PrivateAssets="All" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.9" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0" />
     <PackageReference Include="TinyMapper" Version="3.0.3" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\SledgeOMatic\SledgeOMatic\SledgeOmatic.csproj" />
     <ProjectReference Include="..\..\SOMData\SOMData.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="HtmlAgilityPack">
       <HintPath>..\..\CSCodeCompiler\packages\HtmlAgilityPack.1.11.12\lib\Net45\HtmlAgilityPack.dll</HintPath>
-    </Reference>
-    <Reference Include="SOM">
-      <HintPath>..\..\SledgeOMatic\SledgeOMatic\bin\Debug\SOM.dll</HintPath>
     </Reference>
   </ItemGroup>
 
