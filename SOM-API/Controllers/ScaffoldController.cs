@@ -66,7 +66,7 @@ namespace SOMAPI.Controllers
             KeyVals.Add("<#= Namespace #>", model.Namespace);
             string json = JsonConvert.SerializeObject(KeyVals);
              
-            List<IInterpreter> compilers = new List<IInterpreter>() {
+            List<ICompilable> compilers = new List<ICompilable>() {
                 new ModelTemplateInterpreter(_config),
                 new ModuloInterpreter(),
                 new KeyValReplacer(json)
@@ -75,8 +75,8 @@ namespace SOMAPI.Controllers
             List<CodeTemplate> templates = new List<CodeTemplate>(); 
             foreach (CodeTemplate template in DocProvider.GetTemplates(path))
             {
-                foreach (IInterpreter compiler in compilers)
-                    template.Content = compiler.Interpret(template.Content); 
+                foreach (ICompilable compiler in compilers)
+                    template.Content = compiler.Compile(template.Content); 
                 templates.Add(template);
             }
             return templates;
