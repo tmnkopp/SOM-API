@@ -1,4 +1,10 @@
 ## UPDATE AspNetCoreModuleV2
+## FolderProfile
+cd 'C:\Users\Tim\source\repos\SOM-API\SOM-API';    
+dotnet build --configuration Debug;
+dotnet build --configuration Release;
+cd 'C:\Users\Tim\source\repos\SOM-API';   
+dotnet publish SOM-API -p:PublishProfile=FolderProfile 
 
 $base = 'C:\inetpub\wwwroot\'
 $builds = $base + 'builds\' 
