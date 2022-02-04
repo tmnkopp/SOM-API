@@ -67,7 +67,7 @@ namespace SOMAPI.Controllers
             string json = JsonConvert.SerializeObject(KeyVals);
              
             List<ICompilable> compilers = new List<ICompilable>() {
-                new ModelTemplateInterpreter(_config),
+                //new ModelTemplateInterpreter(_config),
                 new ModuloInterpreter(),
                 new KeyValReplacer(json)
             };
